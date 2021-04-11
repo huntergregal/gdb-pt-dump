@@ -67,6 +67,7 @@ class PD_Entry():
         self.cacheable = is_cacheable(value)
         self.accessed = is_accessed(value)
         self.virt_part = (index << 21) | parent_va
+        self.index = index
         self.two_mb = is_two_mb(value) # This means it's a leaf
         if self.two_mb:
             self.dirty = is_dirty(value)
@@ -92,7 +93,7 @@ class PD_Entry():
         return res
 
 class PT_Entry():
-    def __init__(self, value, parent_va, index):
+    def __init__(self, value, parent_va, index, page_table):
         self.present = is_present(value)
         self.writeable = is_writeable(value)
         self.supervisor = is_supervisor(value)
@@ -105,6 +106,8 @@ class PT_Entry():
         self.pt = extract_no_shift(value, 12, 51)
         self.virt = (index << 12) | parent_va
         self.nx = is_nx(value)
+        self.page_table = page_table
+        self.index = index
 
     def __str__(self):
         res = (f"{hex(self.pt)}: "
@@ -131,6 +134,8 @@ def create_page_from_pte(pte: PT_Entry) -> Page:
     page.wb = pte.writeback
     page.phys = [pte.pt]
     page.sizes = [page.page_size]
+    page.page_table = pte.page_table
+    page.index = pte.index
     return page
 
 def create_page_from_pde(pde: PD_Entry) -> Page:
@@ -144,6 +149,8 @@ def create_page_from_pde(pde: PD_Entry) -> Page:
     page.wb = pde.writeback
     page.phys = [pde.pt]
     page.sizes = [page.page_size]
+    page.page_table = pde.pt
+    page.index = pde.index
     return page
 
 def create_page_from_pdpe(pdpe: PDP_Entry) -> Page:

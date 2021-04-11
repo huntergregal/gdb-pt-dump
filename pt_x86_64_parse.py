@@ -60,11 +60,12 @@ def parse_pdes(phys_mem, pdes):
     return entries, pages
 
 def parse_pt(phys_mem, pde):
+    global done
     entries = []
     values = read_page(phys_mem, pde.pt)
     for u, value in enumerate(values):
         if (value & 0x1) != 0:
-            entry = PT_Entry(value, pde.virt_part, u)
+            entry = PT_Entry(value, pde.virt_part, u, pde.pt)
             entries.append(entry)
     return entries
 
@@ -171,7 +172,7 @@ def parse_and_print_x86_64_table(cache, phys_mem, args, should_print = True):
         conf = PagePrintSettings(va_len = max_va_len, page_size_len = max_page_size_len)
         fmt = f"  {{:>{max_va_len}}} : {{:>{max_page_size_len}}}"
         varying_str = fmt.format("Address", "Length")
-        print(bcolors.BLUE + varying_str + "   Permissions          " + bcolors.ENDC)
+        print(bcolors.BLUE + varying_str + "   Permissions          " + "   PTE Paddr    " + bcolors.ENDC)
         for page in page_ranges:
             print(page_to_str(page, conf))
 

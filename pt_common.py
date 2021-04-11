@@ -86,7 +86,7 @@ def page_to_str(page: Page, conf: PagePrintSettings):
 
     fmt = f"{{:>{conf.va_len}}} : {{:>{conf.page_size_len}}}"
     varying_str = fmt.format(hex(page.va), hex(page.page_size))
-    s = f"{varying_str} | W:{int(page.w)} X:{int(page.x)} S:{int(page.s)} UC:{int(page.uc)} WB:{int(page.wb)}"
+    s = f"{varying_str} | W:{int(page.w)} X:{int(page.x)} S:{int(page.s)} UC:{int(page.uc)} WB:{int(page.wb)} | {hex(page.page_table + (page.index*8))}"
 
     res = ""
     if page.x and page.w:
